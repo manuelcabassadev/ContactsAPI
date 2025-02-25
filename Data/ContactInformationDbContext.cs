@@ -19,7 +19,7 @@ public partial class ContactInformationDbContext : DbContext
         modelBuilder.Entity<Contact>(entity =>
         {
             entity.Property(e => e.ContactId).HasColumnName("ContactID");
-            entity.Property(e => e.eMail)
+            entity.Property(e => e.Email)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("eMail");

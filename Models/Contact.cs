@@ -11,13 +11,13 @@ public partial class Contact
 
     public string Phone { get; set; } = null!;
 
-    public string Fax { get; set; } = null!;
+    public string? Fax { get; set; }
 
-    public string eMail { get; set; } = null!;
+    public string? Email { get; set; }
 
-    public string Notes { get; set; } = null!;
+    public string? Notes { get; set; }
 
     public DateTime LastUpdateDate { get; set; }
 
-    public string LastUpdateUserName { get; set; } = null!;
+    public string? LastUpdateUserName { get; set; }
 }
