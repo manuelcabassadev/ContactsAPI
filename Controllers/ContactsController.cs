@@ -1,12 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ContactsAPI.Models;
 using Microsoft.AspNetCore.Mvc;
-using ContactsAPI.Models;
-using ContactsAPI.Data;
 using Microsoft.Data.SqlClient;
-using System.Configuration;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using static Azure.Core.HttpHeader;
-using System.Collections.Generic;
 
 namespace ContactsAPI.Controllers
 {
@@ -18,13 +12,13 @@ namespace ContactsAPI.Controllers
 
         public ContactsController(IConfiguration configuration)
         {
-            
+
             _configuration = configuration;
         }
 
         //Create a new contact
         [HttpPost]
-        public IActionResult Post([FromBody]Contact model)
+        public IActionResult AddContact([FromBody] Contact model)
         {
 
             try
@@ -65,27 +59,29 @@ namespace ContactsAPI.Controllers
             try
             {
                 if (model.ContactId == 0)
-                    return new JsonResult(NotFound());
+                    return new JsonResult(BadRequest());
 
-                using (SqlConnection con = new(_configuration.GetConnectionString("DefaultConnection")))
-                {
-                    con.Open();
-                    using (SqlCommand cmd = new SqlCommand("UPDATE Contacts SET Name = @Name, Phone = @Phone, Fax = @Fax, Email = @Email,Notes = @Notes, LastUpdateDate = @LastUpdateDate, LastUpdateUserName = @LastUpdateUserName " +
-                        "WHERE ContactID = @id", con))
+                    using (SqlConnection con = new(_configuration.GetConnectionString("DefaultConnection")))
                     {
-                        cmd.Parameters.AddWithValue("@id", model.ContactId);
-                        cmd.Parameters.AddWithValue("@Name", model.Name);
-                        cmd.Parameters.AddWithValue("@Phone", model.Phone);
-                        cmd.Parameters.AddWithValue("@Fax", model.Fax);
-                        cmd.Parameters.AddWithValue("@Email", model.Email);
-                        cmd.Parameters.AddWithValue("@Notes", model.Notes);
-                        cmd.Parameters.AddWithValue("@LastUpdateDate", DateTime.Now);
-                        cmd.Parameters.AddWithValue("@LastUpdateUserName", model.LastUpdateUserName);
+                        con.Open();
+                        using (SqlCommand cmd = new SqlCommand("UPDATE Contacts SET Name = @Name, Phone = @Phone, Fax = @Fax, Email = @Email,Notes = @Notes, LastUpdateDate = @LastUpdateDate, LastUpdateUserName = @LastUpdateUserName " +
+                            "WHERE ContactID = @id", con))
+                        {
+                            cmd.Parameters.AddWithValue("@id", model.ContactId);
+                            cmd.Parameters.AddWithValue("@Name", model.Name);
+                            cmd.Parameters.AddWithValue("@Phone", model.Phone);
+                            cmd.Parameters.AddWithValue("@Fax", model.Fax);
+                            cmd.Parameters.AddWithValue("@Email", model.Email);
+                            cmd.Parameters.AddWithValue("@Notes", model.Notes);
+                            cmd.Parameters.AddWithValue("@LastUpdateDate", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@LastUpdateUserName", model.LastUpdateUserName);
 
-                        cmd.ExecuteNonQuery();
+                            cmd.ExecuteNonQuery();
+                        }
+
                     }
+                
 
-                }
             }
             catch (Exception ex)
             {
@@ -98,7 +94,7 @@ namespace ContactsAPI.Controllers
 
         //Retrieves all register contacts
         [HttpGet]
-        public JsonResult GetContacts()
+        public JsonResult GetContacts(string searchWord = null)
         {
             List<Contact> contactsModel = new List<Contact>();
 
@@ -107,19 +103,29 @@ namespace ContactsAPI.Controllers
                 using (SqlConnection con = new(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     con.Open();
-                    using (SqlCommand cmd = new SqlCommand("SELECT ContactID, Name, Phone, Fax, eMail, Notes, LastUpdateDate, LastUpdateUserName FROM Contacts", con))
+                    using (SqlCommand cmd = new SqlCommand(@"SELECT ContactId, Name, Phone, Fax, Email, Notes, LastUpdateDate, LastUpdateUserName 
+                                                                    FROM Contacts 
+                                                                    WHERE (@searchWord = '' OR Name LIKE '%' + @searchWord + '%'  
+                                                                    OR Phone LIKE '%' + @searchWord + '%'
+                                                                    OR Fax LIKE '%' + @searchWord + '%'  
+                                                                    OR Email LIKE '%' + @searchWord + '%'
+                                                                    OR Notes LIKE '%' + @searchWord + '%'
+                                                                    OR LastUpdateDate LIKE '%' + @searchWord + '%'  
+                                                                    OR LastUpdateUserName LIKE '%' + @searchWord + '%')", con))
                     {
+                        cmd.Parameters.AddWithValue("@searchWord", string.IsNullOrEmpty(searchWord) ? "%":searchWord);
+
                         SqlDataReader reader = cmd.ExecuteReader();
 
                         while (reader.Read())
                         {
                             contactsModel.Add(new Contact
                             {
-                                ContactId = Convert.ToInt32(reader["ContactID"]),
+                                ContactId = Convert.ToInt32(reader["ContactId"]),
                                 Name = reader["Name"].ToString(),
                                 Phone = reader["Phone"].ToString(),
                                 Fax = reader["Fax"].ToString(),
-                                Email = reader["eMail"].ToString(),
+                                Email = reader["Email"].ToString(),
                                 Notes = reader["Notes"].ToString(),
                                 LastUpdateDate = Convert.ToDateTime(reader["LastUpdateDate"].ToString()),
                                 LastUpdateUserName = reader["LastUpdateUserName"].ToString(),
