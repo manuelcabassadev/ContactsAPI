@@ -1,0 +1,50 @@
+[
+  {
+    "ContainingType": "ContactsAPI.Controllers.ContactsController",
+    "Method": "AddContact",
+    "RelativePath": "api/Contacts/AddContact",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "ContactsAPI.Models.Contact",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ContactsAPI.Controllers.ContactsController",
+    "Method": "EditContact",
+    "RelativePath": "api/Contacts/EditContact",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "ContactsAPI.Models.Contact",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ContactsAPI.Controllers.ContactsController",
+    "Method": "GetContacts",
+    "RelativePath": "api/Contacts/GetContacts",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "searchWord",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
